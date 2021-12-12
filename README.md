@@ -1,4 +1,4 @@
-# Computer Music: Representations and Models - Homework2
+# CMRM - Homework #2
 
 Repository for Homework #2 of CMRM course.
 Required Python version is `3.9.x`  
