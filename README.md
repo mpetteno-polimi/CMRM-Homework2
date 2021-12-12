@@ -8,7 +8,7 @@ For packages and virtual environment management the chosen tool is `pipenv`.
 1. Download and install [PyCharm IDE](https://www.jetbrains.com/pycharm/download).
 2. Install `pipenv`. A guide is available [here](https://pipenv.pypa.io/en/latest/install/#installing-pipenv).
 3. Create a new PyCharm project from this GIT repository.
-5. Execute `PIPENV_VENV_IN_PROJECT=1 pipenv sync --dev` to initialize the virtual env and download the required 
+5. Execute `pipenv sync --dev` to initialize the virtual env and download the required 
    packages.
 6. Reboot PyCharm to activate the new virtual environment.
 
