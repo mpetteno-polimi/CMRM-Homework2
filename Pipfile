@@ -8,6 +8,7 @@ jupyter = "*"
 numpy = "*"
 scipy = "*"
 librosa = "*"
+matplotlib = "*"
 
 [dev-packages]
 
