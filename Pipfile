@@ -9,6 +9,7 @@ numpy = "*"
 scipy = "*"
 librosa = "*"
 matplotlib = "*"
+libfmp = "*"
 
 [dev-packages]
 
