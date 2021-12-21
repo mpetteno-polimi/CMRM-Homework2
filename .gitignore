@@ -130,3 +130,6 @@ dmypy.json
 
 # PyCharm
 .idea/
+/report/main.aux
+/report/main.log
+/report/main.synctex.gz

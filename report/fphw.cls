@@ -29,8 +29,10 @@
 %these are auxiliary definitions used in the title section
 \newcommand{\CourseLang}{Course}
 \newcommand{\DateLang}{Due date}
-\newcommand{\StudentLang}{Student name}
+\newcommand{\StudentLang}{Students}
 \newcommand{\ProfessorLang}{Professor}
+
+\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
 
 % Header and footers, we will use the titles also
 \RequirePackage{fancyhdr}
@@ -100,6 +102,7 @@
 \renewcommand{\maketitle}{%
     \thispagestyle{plain}
     \begin{center}
+    	\vspace*{150pt}
         \ifx\instituteloc\undefined{}\else{\scshape \instituteloc} \\[10pt] \fi
         \hrule
         \vspace{10pt}
@@ -112,8 +115,10 @@
         \ifx\professorloc\undefined{}\else{\ProfessorLang: {\itshape\professorloc}}\fi 
         \\
         \DateLang: {\itshape\@date}
+        \\
         \vspace{20pt}
     \end{center}
+    \newpage
 }
 
 % definition of the "problem" environment
