@@ -88,12 +88,16 @@
 %	ASSIGNMENT CONTENT
 %----------------------------------------------------------------------------------------
 
-\color{red}
 
-In generale: inglese da rivedere\\ 
-\color{black}
+\section*{Introduzione}
 
-\textbf{Please note:} For the complete commented code, look at the ChordRecognitionTemplateBased.ipynb file on the notebook attached.
+In this report we analyze step by step the code implemented in the attached \emph{Jupyter Notebook} trying to answer the questions asked for this homework. Along with the reading of this report, please make sure to check out code comments in the notebook. The first cells of the notebook are used to initialize the context and the parameters of the algorithm.
+
+\subsection*{Context initialization}
+In order to optimize the code for automation and readability, in this section we initialize a dictionary that contains all the details of the songs used in the experiment (\emph{Corpus}). The chord labels are generated here too.
+
+\subsection*{Parameters configuration}
+In this cell we declare and set to a default value all the template-based chord recognition algorithm's parameters. This approach allows us to centralize the management of the algorithm's behavior, making it easier to evaluate once implemented.
 
 \section*{\color{red}Question 1}
 
@@ -103,7 +107,7 @@ In generale: inglese da rivedere\\
 
 \subsection*{\color{blue}Answer}
 
-A chord recognition algorithm consists of two steps. In the first step, the given audio recording is cut into frames that are transformed into a feature vector. This is tipically done with chroma-based audio features, which contain the tonal information of the audio signal.
+A chord recognition algorithm is composed by two steps. In the first step, the audio track is cut into frames that are transformed into a feature vector. This is usually done by using chroma-based audio features, which contain the tonal information of the audio signal.
 In the second step, pattern matching techniques are used to map each feature vector to a set of predefined chord models. The best fit determines the chord label assigned to the given frame.
 
 \begin{figure}[H]
@@ -112,21 +116,16 @@ In the second step, pattern matching techniques are used to map each feature vec
  \caption{Template-Based Chord Recognition Pipeline}
 \end{figure}
 
-\subsection*{Context initialization}
-In this section we decided to initialize a dictionary with song library details (experiment corpus) in order to have a code that is easier to read. In this way it will also be easier to change the parameters (question 5), doing it directly from this cell.
-
-\subsection*{Parameters configuration}
-This section of the code establishes all the known parameters and values that will be used to develop the code. It will be possible to change the parameters directly from this section when needed (question 5).
-
 \subsection*{Features processing functions}
 
-In this section of the code all the functions that will be useful to implement features processing are defined. To improve the chord recognition results, in fact, additional enhancement techniques are applied either before the pattern matching step (referred to as prefiltering) or after/within the pattern matching step (normalization of the output):
+In this section of the code all the functions that will be useful to implement features processing are defined. In fact, is possible to improve chord recognition results by using some processing techniques either before the pattern matching step (prefiltering) or after the pattern matching step (normalization of the output):
 
 \begin{enumerate}
 	\item \verb|compress_feature_sequence| - This function takes in input the sequence of features and applies compression in a logarithmic fashion.
-	\item \verb|normalize_feature_sequence| - This function normalizes the columns of a feature sequence. One normalization strategy is to choose a suitable norm  and then to replace each n-feature vector  by $x/p(x)$. The normalization procedure as described above replaces each chroma vector by its normalized version. Intuitively speaking, normalization introduces a kind of invariance to differences in dynamics or sound intensity. The normalization procedure is only possible if $p(x) \neq 0$. Also for very small values $p(x)$ which may occur in passages of silence before the actual start of the recording or during long pauses, normalization would lead to more or less random and therefore meaningless chroma value distributions. Therefore, if $p(x)$ calls below a certain threshold, the vector $x$ may be replaced by some standard vector such as a uniform vector of norm one instead of dividing by $p(x)$. In the function exactly this steps are implemented. Normalization will be used also in post filtering in order to normalize the chord similarities.
-	\item \verb|smooth_feature_sequence| - For certain music retrieval applications, chromagrams may be too detailed. In particular, it may be desirable to further increase the similarity between them. This can be achieved by smoothing procedures applied in a postprocessing step. The idea is to compute for each chroma dimension a kind of local average over time. More precisely, let \(X=(x_1,x_2,...,x_N)\) be a feature sequence with $x_n \in \mathbb{R}^k$ for $\in$[1:N], and let be $w$ a rectangular window  of length L. Then we compute for each $k \in[1:N]$ a convolution between $w$ and the sequence $[x_1(k),x_2(k),...,x_N(k)]$. Assuming a centered view, we only keep the center part of length of the convolution (\textit{scipy.signal.convolve}). The result is a smoothed feature sequence of the same dimensions. For the window (also called kernel) results in a bandwise 1D convolution. Using the parameter \textit{mode='same'} enforces the centered view. As for the window , one may also use other window types such as a \textit{Hann }window. Applying temporal smoothing using a rectangular or a \textit{Hann} window can be regarded as bandwise lowpass filtering, which attenuates fast temporal fluctuations in the feature representation.
-	\item \verb|downsample_feature_sequence| - Often, to increase the efficiency of subsequent processing and analysis steps, one decimates the smoothed representation by keeping only every D-th feature, where D$\in\mathbb{N}$ is a suitable constant (typically much smaller than the window length L). This decimation, which is also referred to as downsampling, reduces the feature rate by a factor D.
+	\item \verb|normalize_feature_sequence| - This function normalizes the columns of a feature sequence. The  normalization consists in choosing a norm and then to replace each n-feature vector  by $x/p(x)$. By doing this, each chroma vector is replaced with its normalized version.  The normalization is possible only if $p(x)\neq0$, but sometimes is possible that it leads to random chroma values. This usually happens during long pauses and moments of silence, when $p(x)$ is almost equal to zero. The solution is to replace (under a certain threshold of $p(x)$) the vector $x$  by an uniform one (usually of norm one) instead of dividing by $p(x)$. In the function exactly this steps are implemented. Normalization will be used also in post filtering in order to normalize the chord similarities.
+	\item \verb|smooth_feature_sequence| -  This function applies smoothing artifacts to chromagrams in the postprocessing step. In fact, if chromagrams are too detailed, it can be a problem in the following recognition phases. Let \(X=(x_1,x_2,...,x_N)\) be a feature sequence with $x_n \in \mathbb{R}^k$ for $\in$[1:N], and let be $w$ a rectangular window  of length L. Smoothing is achieved by a convolution between each feature sequence and the filter kernel. The result is a smoothed feature sequence. 
+	The parameter \textit{mode='same'} centers the view of the signal. It is also possible to use other window types such as a \textit{Hann }window, which attenuates fast temporal fluctuations in the feature representation.
+	\item \verb|downsample_feature_sequence| - The function increases the efficiency of the next processing steps by downsampling the feature rate of the smoothed representation by a factor D (usually smaller than the window length L).  
 \end{enumerate}
 
 \subsection*{Template-based chord recognition steps and functions}
@@ -136,28 +135,26 @@ In this cell of the code are defined all the function that will be used in order
 \begin{enumerate}
 	\item \verb|load_audio| - Loads the .wav file.
 	\item \verb|chroma_representation| - Computes chroma features with STFT to the eventually compressed features.
-	\item \verb|generate_triads_templates| - Generate chord templates of major and minor triads. This function takes no input and returns the matrix containing the chord templates as columns. Every column will be a binary vector representing the template for every minor or major chord.
-	\item \verb|generate_chord_labels| - Generate a chord labels list for major and minor triads.
+	\item \verb|generate_triads_templates| - Generates chord templates of major and minor triads. This function takes no input and returns the matrix containing the chord templates as columns. Every column will be a binary vector representing the template for every minor or major chord.
+	\item \verb|generate_chord_labels| - Generates a chord labels list for major and minor triads.
 This function takes no inputs and generates a list where major chords are indicated only with the tonic note and minor chords with the tonic note plus the simbol "m" (minor).
 	\item \verb|pre_processing| - The aim of this function is to pre-process the features used in the algorithm. With the previous defined functions it normalizes, smooths and downsamples chroma features and triads template.
-	\item \verb|pattern_matching| - It computes the \textit{similarity measure} (\textit{np.matmul}) between the triads template models and the predicted chroma features,according to this formula $(x,y)=\langle x,y\rangle/(||x||*||y||)$.
+	\item \verb|pattern_matching| - 
+	The idea behind this function is to use as inputs the calculated chromagram and the matrix containing the chords templates as columns. The template can be seen as a set of models where each column represents a chord. We also compute  the \textit{similarity measure} indicated by $s(t_\lambda,x_n)$ and whose general formula is $(x,y)=\frac{\langle x,y\rangle}{(||x||*||y||)}$. This is done in order to compare predicted chroma features and triads template models.
+	The function assigns the chord label that maximizes the similarity between the template of the chord and the template of the chromagram:  $\lambda := argmax_\lambda s(t_\lambda,x_n)$.
+
 	\item \verb|post_processing| - In this section is applied post-processing through normalization to chord similarity, in order to have normalized results.
-	\item \verb|recognition_result| - This function takes as input the matrix of triads templates and compares the current chord with the various templates. The tamplate of the chord that maximizes the chord similarity is the correct one. \color{red}VEDI MEGLIO\color{black}
+	\item \verb|recognition_result| - This function takes as input the matrix of triads templates and compares the current chord with the various templates. The tamplate of the chord that maximizes the chord similarity is the correct one. 
 \end{enumerate}
 
 \subsection*{Template-based chord recognition implementation}
 
-\color{red}Review description\color{black}
 
-While the previous cells contain the function useful to the code, in this section there is the function that implements the real algorithm: \verb |compute_template_based_chord_recognition|
+In this section we can find the function that implements the real template based chord recognition algorithm: \verb |compute_template_based_chord_recognition|.
+It takes as input the path to a .wav file and returns the estimated chords sequence labels.
+At the end the output will be a list where each element is the predicted chord label for the time frame n.
 
-
-
-The aim of this homework is to implement the template based chord recognition algorithm. For doing this, we define a function that takes as input the path to a .wav file and returns the estimated chords sequence labels:
-
-The output is a list where each element is the predicted chord label for the time frame n.
-
-In first place, the function loads the audio file.\\ After that, it computes chromagram where, as said before, is performed pre-processing through compression. It is also necessary to create the triads template that is useful to compare with the predicted chord.\\
+In first place, the function loads the audio file.\\ After that, it computes chromagram where is performed pre-processing through compression. It is also necessary to create the triads template that is useful to compare with the predicted chord.\\
 As said before is necessary to apply pre-processing with the previously defined function (normalization, smoothing, downsampling).
 Then, we have to compare the predicted chord through pattern matching and post-process the result.
 Only at the end we can recognize the chord through maximum similarity principle.\\
@@ -200,21 +197,22 @@ In this last section we perform the algorithm with the main function previous de
 
 \subsection*{\color{blue}Answer}
 
-In this section is asked to write a function to load and preprocess a reference annotation (or ground truth) file, saved in CSV. \\
-The function should take as input the path to a CSV file and produce as output a list of ground truth chord labels, after suitable pre processing.\\
+The required function should take as input the path to a CSV file and produce as output a list of ground truth chord labels.\\
 The output must be a list where each element
-n is the ground truth chord label for the n-th time window.
+n is the ground truth chord label for the n-th time window.\\
+Before proceeding, it is advisable to first make a clarification regarding the 3 formats used in the notations.
+The CSV format of the files consists in three values which are the beginning and the end of the chord (in seconds) and the label assigned to that chord.
+
 
 \subsection*{Ground truth processing functions}
 
 In this paragraph is explaied each step of the preprocessing phase, focusing in particular on the reduction strategy of the chord label set.
 
 \begin{enumerate}
-	\item \verb|read_csv| - Reads the path of the .csv file.
+	\item \verb|read_csv| - Reads the path of the CSV file.
 	\item \verb|convert_segment_annotations| - The function (required in the first point, question 2) has the important role to convert the segment-based annotation into a frame-based label sequence adapted to the feature rate used for the chroma sequence.
 	\item \verb|get_binary_time_chord_matrix| - The function takes as input the sequence of lables and returns the matrix with the duration (in binary rapresentation) of the various chords. It converts the labels used in the annotation file to match the chord labels used for the chord recognition
 algorithm in terms of enharmonic equivalence (i.e., Db = C\# ).
-\color{red} VEDI MEGLIO \color{black}
 	\item \verb|normalize_chord_labels| - Important to notice is the function that normalizes chord labels. It replaces for segment-based annotation in each chord label the string ':min' by 'm' and convert flat chords into sharp chords using enharmonic equivalence. We can also see that half diminished, diminished and minor chords are classified as minor chords with the letter 'm'. Maj, sus and slash  chords are classified as major chords (' '). This is done by using Python's \textit{regex} (regular expressions). In this way we implemented the reduction strategy of the chord label set.
 \end{enumerate}
 
@@ -245,20 +243,15 @@ In this section the code performs ground truth reading, plotting the results of 
 
 In this section we define a function that takes as input the list of predicted chord labels, the list of ground truth chord labels and computes the proposed metric value: \verb |compute_eval_measures| .
 
-A metric is a scalar number that expresses how good is the algorithm in performing the task of chord recognition.\\
-
-We now introduce a simple evaluation measure. Recall that, given a chroma sequence \(X=(x_1,x_2,…,x_N)\) and a set \( \Lambda :=[C,C\#,…,B,Cm,Cm\#,…,Bm] \)\\
-
-In the context of music structure analysis, we introduce evaluation measures that are used in general information retrieval. We now adapt these notions to our chord recognition scenario. First, we define the set of items to be $L=[1:N] \times \Lambda$. In particular, the non-chord label N is left unconsidered. Then:
-$L_+^R^e^f := \{(n,\lambda_n^R^e^f) \in L:n\in[1:N]\}$ are the positive (or relevant items) and $L_+^E^s^t :=\{(n,\lambda_n^E^s^t) \in L:n\in[1:N]\}$
-
-are the items estimated as positive (or retrieved items). With these notions, an item (n,$\lambda_n$) is called a true positive (TP) in the case that the label is correct (i.e., $\lambda_n$=$\lambda_n^R^e^f$). Otherwise, (n,$\lambda_n$) is called a false positive (FP) and (n,$\lambda_n^R^e^f$) a false negative (FN). All other items in I are called true negative. With these notions, one can define the standard precision (P), recall (R), and F-measure (F):
+A metric is a value that tells us how good is the algorithm in performing chord recognition.\\
+In order to define the metric we refer to a chroma sequence \(X=(x_1,x_2,…,x_N)\) and to a set \( \Lambda :=[C,C\#,…,B,Cm,Cm\#,…,Bm] \) of major and minor chords reference.\\
+Considering the set product $X \times \Lambda$, the predicted label (n,$\lambda_n$) is called a true positive (TP) in the case that the label is correct (i.e. $\lambda_n$=$\lambda_n^R^e^f$). Otherwise, (n,$\lambda_n$) is called a false positive (FP) and (n,$\lambda_n^R^e^f$) a false negative (FN). All other items in I are called true negative. With these notions, one can define the standard precision (P), recall (R), and F-measure (F):
 
 \[P=(\#TP)/(\#TP + \#FP)\]
 \[R=(\#TP)/(\#TP + \#FN)\]
 \[F=(2PR)/(P + R)\]
 
-In the way we have formulated our chord recognition problem so far, we have exactly one label per frame in the reference as well as in the estimation. From this follows that \#FP=\#FN and that the definition of accuracy coincides with precision, recall, and F-measure. This is why in the function we use as measure the precision P. If \#TP=0, the precision is setted to the default value 0.
+Is important to notice that \#FP=\#FN because we have one label per frame in the reference as in the estimation. This implies that the accuracy coincides with precision P, recall R, and F-measure. This is why in the function we use as measure the precision P. If \#TP=0, the precision is setted to the default value 0.
 
 \subsection*{Metric evaluation implementation}
 
@@ -269,8 +262,6 @@ It implements the metric (precision) defined previously by calculating the cardi
 This function implements exactly the precision measure as said in the previous paragraph.
 
 \subsection*{Perform metric evaluation}
-
-\color{red}Improve description\color{black}
 
 We compute the evaluation for the song "Let it be" by Beatles.
 Using the STFT-based chromagram in combination with the template-based chord recognizer, we obtained a precision of F=60,27 \begin{math}\% \end{math}. In fact, as the visualization shows, there are many sudden jumps between chord labels. We could optimize this result by choosing the optimal parameters setted at the beginning, but this won't be the best result.
@@ -283,14 +274,13 @@ Using the STFT-based chromagram in combination with the template-based chord rec
 \end{figure}
 
 \begin{problem}
-	\textbf{Can you imagine a musically informed strategy that weights diferently mismatch errors of
+	\textbf{Can you imagine a musically informed strategy that weights differently mismatch errors of
 the chord recognition algorithm?}
 \end{problem}
 
 \subsection*{\color{blue}Answer}
 
-\color{red}Manca risposta a questa domanda!\color{black}\\
-Introduces a kind of context-aware postfiltering.
+One possible method could be the implementation of an algorithm that, unlike the template based approach, is no longer based only on the matching between spectral templates and template models. One idea could be to make the system "musically informed", ie able to take into account, for example, which chord is more or less likely to be played (or in general which takes into account the musical context). In a case like this, perhaps it would be necessary to introduce some mathematical instrument of the probabilistic field. In this regard we propose some algorithm based on transition probabilities and on Markov chains / matrices. Under these consideration we would expect a better precision in estimating the chords.
 
 %----------------------------------------------------------------------------------------
 
@@ -302,10 +292,8 @@ Introduces a kind of context-aware postfiltering.
 
 \subsection*{\color{blue}Answer}
 
-\color{red}Improve description\color{black}
-
 We compute also the proposed metric for the remaining 3 songs.
-Averaging these numbers on the song level yields a mean precision P=60.48\begin{math}\% \end{math}. The value P=60.27\begin{math}\% \end{math} that we found in "Let it be" is very similar to the mean; we can say that this is still due to sudden jumps between chord labels. With HMM we can obtain P=78,5\begin{math}\% \end{math}, the value one also obtains for the entire Beatles collections (180 songs). More recent data-driven chord recognition approaches achieve recognition rates between 80 and 90 percent for the Beatles collection. In general, such numbers need to be taken with caution, since they only give limited insights into the complexity of the dataset.
+Averaging these numbers on the song level yields a mean precision P=60.48\begin{math}\% \end{math}. The value P=60.27\begin{math}\% \end{math} that we found in "Let it be" is very similar to the mean; we can say that this is still due to sudden jumps between chord labels. In light of what has been said in the end of question 3 and therefore knowing that there are better algorithms that take into account other more complicated aspects, the results obtained can be considered satisfactory (in relation to the method used).
 
 \begin{figure}[H]
  \centering
