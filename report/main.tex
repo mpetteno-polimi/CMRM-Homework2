@@ -51,7 +51,7 @@
 %	ASSIGNMENT INFORMATION
 %----------------------------------------------------------------------------------------
 
-\title{Homework \#2 - Template-Based Chord Recognition} % Assignment title
+\title{Homework \#2 - Automatic Chord Recognition} % Assignment title
 
 \author{Matteo Pettenò - Marco Viviani} % Students name
 
@@ -163,7 +163,7 @@ Then we perform the algorithm for the file \verb|Beatles_LetItBe.wav| and plot t
 \end{figure}
 
 %----------------------------------------------------------------------------------------
-
+\newpage
 \section*{\color{red}Question 2}
 
 \begin{problem}
@@ -206,7 +206,7 @@ In conclusion we perform and test the ground truth reading for the file \verb|Be
 \end{figure}
 
 %----------------------------------------------------------------------------------------
-
+\newpage
 \section*{\color{red}Question 3}
 
 \begin{problem}
@@ -259,7 +259,7 @@ the chord recognition algorithm?
 One possible method could be the implementation of an algorithm that, unlike the template based approach, is no longer based only on the matching between spectral templates and template models. One idea could be to make the system "musically informed", ie able to take into account, for example, which chord is more or less likely to be played (or in general which takes into account the musical context). In a case like this, perhaps it would be necessary to introduce some mathematical instrument of the probabilistic field. In this regard we propose some algorithm based on transition probabilities and on Markov chains / matrices. Under these consideration we would expect a better precision in estimating the chords.
 
 %----------------------------------------------------------------------------------------
-
+\newpage
 \section*{\color{red}Question 4}
 
 \begin{problem}
@@ -289,7 +289,7 @@ Computing the proposed metric and averaging the results yields a mean precision 
 \end{figure}
 
 %----------------------------------------------------------------------------------------
-
+\newpage
 \section*{\color{red}Question 5}
 
 \begin{problem}
@@ -301,10 +301,10 @@ Computing the proposed metric and averaging the results yields a mean precision 
 To be efficient we automated the parameter performance test: once defined the \verb|parameters_values| dictionary containing the parameters and the three values to be tested, for each of them we iterate over each song in the \verb|songs_dictionary| and overwrite the corresponding global parameter identified thanks to Python's \verb|globals()| function.
 Then chords recognition, ground truth reading and metrics evaluation are performed and the outputs saved in the \verb|songs_dictionary| to allow plotting at the end.
 
-\subsection*{Smooth filter length} 
-\color{red}Review\color{black}
-We consider the following vector of values [0,30,60]: we can see an increase in accuracy up to 30 and then a substantial settlement with a slight decrease. The graphs have similar trends.\\
-We can deduce that around the value 30 the precision of our algorithm will be higher. However, it is not particularly high. To do this it will also be necessary to observe which are the best values for the other parameters that the algorithm is using. \\
+\subsection*{Smooth filter length}
+
+The first parameter we tested is the window length of the smooth filter. We considered the following values [0, 30, 60]: we can see an increase in accuracy up to $L=30$ and then a substantial settlement with a slight decrease. The graphs have similar trends.
+We can deduce that around the value $L=30$ the precision of our algorithm will be higher. However to further increase accuracy it is necessary to set the best values for the other algorithm parameters as well.
 
 \begin{figure}[H]
  \centering
@@ -313,20 +313,19 @@ We can deduce that around the value 30 the precision of our algorithm will be hi
 \end{figure}
 
 \subsection*{Downsampling factor}
-\color{red}Review\color{black}
-We take into account these values: [0, 10, 100]: the more the downsampling factor is increased, the more you reduce the feature rate and the less you read the harmonic content (in larger steps). If chosen high, inconsistently with the window length, the precision decreases.
-It's good to use it in combination with the smoothing filter for efficiency. In this case 10 or less can be a good value.  
+
+The default parameters configuration provide a smoothing of the features with a window of length $L=41$. We tested how the downsampling of the smoothed features affect the algorithm performance. Taking into account [0, 10, 100] as values ($D=0$ means no downsampling) we observe that the more the downsampling factor is increased, the more you reduce the feature rate and the less you read the harmonic content (in larger steps). If chosen high, inconsistently with the window length, the precision obviously decreases. Although it does not improve the accuracy of our algorithm, it does not worsen it for values less than $D=10$ and so it could be useful if you want to optimize the computation time.
 
 \begin{figure}[H]
  \centering
  \includegraphics[scale=1]{./images/5_down_sampling_precision.png}
- \caption{Down sampling factor}
+ \caption{Downsampling factor}
 \end{figure}
 
-\subsection*{Window length}
-\color{red}Review\color{black}
-We consider the following vector of values of window lengths [2048, 8192, 32768]:  using an analysis window with a short duration , each chroma frame contains the onsets of at most one note. Even though the sound of each note may last much longer than the notated duration, the harmonic content of each frame is dominated by only one or two notes. This explains the misclassifications and many chord label changes in the recognition result of the first setting. \\
-An obvious strategy for improving the chord recognition result is to use larger window sizes. Anyway, the larger analysis windows smooth out the originally sharp transitions between different chords, which may introduce problems at chord changes.\\
+\subsection*{STFT window length}
+
+As a last test parameter we took into consideration the length of the window used for the STFT of the audio signal. We considered the values [2048, 8192, 32768] that at the default sample rate ($F_s=22050$) correspond to a small (\emph{92ms}), medium (\emph{372ms}) and large (\emph{1486ms}) window sizes. Using an analysis window with a short duration, each chroma frame contains the onsets of at most one note. Even though the sound of each note may last much longer than the notated duration, the harmonic content of each frame is dominated by only one or two notes. This explains the misclassifications and many chord label changes in the recognition result of the first setting.\\
+An obvious strategy for improving the chord recognition result is to use larger window sizes. Anyway, the larger analysis windows smooth out the originally sharp transitions between different chords, which may introduce problems at chord changes.
 
 \begin{figure}[H]
  \centering
