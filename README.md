@@ -1,6 +1,6 @@
 # CMRM - Homework #2
 
-Repository for Homework #2 of CMRM course.
+[Repository](https://github.com/mpetteno-polimi/CMRM-Homework2) for Homework #2 of CMRM course.
 Required Python version is `3.9.x`  
 For packages and virtual environment management the chosen tool is `pipenv`.
 

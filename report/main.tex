@@ -255,8 +255,13 @@ the chord recognition algorithm?
 \end{problem}
 
 \subsection*{\color{blue}Answer}
-\color{red}Improve\color{black}
-One possible method could be the implementation of an algorithm that, unlike the template based approach, is no longer based only on the matching between spectral templates and template models. One idea could be to make the system "musically informed", ie able to take into account, for example, which chord is more or less likely to be played (or in general which takes into account the musical context). In a case like this, perhaps it would be necessary to introduce some mathematical instrument of the probabilistic field. In this regard we propose some algorithm based on transition probabilities and on Markov chains / matrices. Under these consideration we would expect a better precision in estimating the chords.
+
+One possible method could be the implementation of an algorithm that is no longer based only on the matching between spectral templates and template models. 
+This was done instead with the template based approach.
+One idea could be to make the system "musically informed", ie that knows which are the most probable changes between one chord and another.
+This could be done with a code able to distinguish the tonality of the piece. 
+In fact, if we know the key of the piece, the number of more probable chords would be significantly reduced. Under these assumptions, perhaps it would be necessary to introduce some mathematical instrument of the probabilistic field. 
+In this regard we propose some algorithm based on transition probabilities and on Markov chains/matrices. Under these consideration we would expect a better precision in estimating the chords.
 
 %----------------------------------------------------------------------------------------
 \newpage
